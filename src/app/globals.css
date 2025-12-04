@@ -1,0 +1,114 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Times+New+Roman:wght@700&display=swap');
+
+:root {
+    --primary-color: #002366; /* Royal Blue */
+    --primary-darker: #001540;
+    --accent-gold: #D4AF37; /* Royal Gold */
+    --gold-gradient: linear-gradient(135deg, #FFD700, #D4AF37);
+    --secondary-color: #25D366;
+    --kaththi-green: linear-gradient(135deg, #00C853 0%, #00695C 100%);
+    --text-color: #1a1a1a;
+    --light-text: #555;
+    --bg-color: #f4f6f9;
+    --card-bg: #ffffff;
+    --border-color: #e0e0e0;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --prime-color: #FFD700;
+    --danger-color: #dc3545;
+    --success-color: #28a745;
+    --info-color: #17a2b8;
+    --animation-duration: 0.6s;
+}
+
+html { scroll-behavior: smooth; }
+body { 
+    font-family: 'Roboto', 'Arial', sans-serif; 
+    background-color: var(--bg-color); 
+    margin: 0; 
+    padding: 0; 
+    color: var(--text-color); 
+    overflow-x: hidden; 
+    line-height: 1.7; 
+}
+
+/* Animations */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.animate-on-scroll { animation: fadeIn 0.8s ease-in-out; }
+
+/* === PREMIUM CARDS === */
+.framed-card-wrapper { 
+    flex: 0 0 auto; 
+    width: 100%; 
+    max-width: 200px;
+    height: 330px; 
+    cursor: pointer; 
+    transition: transform 0.3s ease; 
+    filter: drop-shadow(0 8px 15px rgba(0,0,0,0.2)); 
+    position: relative; 
+    margin: 0 auto;
+}
+.framed-card-wrapper:hover { 
+    transform: translateY(-8px) scale(1.02); 
+    filter: drop-shadow(0 12px 20px rgba(212, 175, 55, 0.4)); 
+}
+
+.framed-card-content { position: relative; width: 100%; height: 100%; text-align: center; }
+.card-frame-image { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; }
+
+/* Member Photo Logic */
+.framed-member-photo { 
+    position: absolute; 
+    top: 9%; 
+    left: 12%; 
+    width: 80%; 
+    height: 50%; 
+    object-fit: cover; 
+    border-radius: 6px; 
+    z-index: 1; 
+}
+
+.framed-info-container { 
+    position: absolute; 
+    bottom: 14%; 
+    left: 7%; 
+    width: 90%; 
+    z-index: 3; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center; 
+}
+
+.framed-member-name { 
+    margin: 2px; 
+    font-size: 0.9em; 
+    font-weight: 700; 
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.9); 
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    width: 100%; 
+    text-transform: capitalize; 
+    color: #f0f0f0; 
+}
+
+.framed-balance-badge { 
+    font-size: 1.5em; 
+    font-weight: 900; 
+    letter-spacing: 0.5px; 
+    text-shadow: 0 2px 4px rgba(0,0,0,0.8); 
+}
+
+/* Colors for Ranks */
+.gold-text { color: #FFF8DC; } 
+.gold-bg { color: #FFD700 !important; text-shadow: 0 0 10px rgba(255, 215, 0, 0.6), 0 2px 4px rgba(0,0,0,1) !important; }
+
+/* Stats Card Style */
+.stats-card-luxury {
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    text-align: center;
+    border-top: 4px solid var(--success-color);
+}

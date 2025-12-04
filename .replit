@@ -1,53 +1,29 @@
-modules = ["web", "nodejs-20"]
+run = "npm run dev"
+modules = ["nodejs-20"]
+
 [agent]
 expertMode = true
 
-[nix]
-channel = "stable-25_05"
+[[ports]]
+localPort = 3000
+externalPort = 3000
 
-[userenv]
-
-[userenv.shared]
-FIREBASE_AUTH_DOMAIN = "bank-master-data.firebaseapp.com"
-FIREBASE_DATABASE_URL = "https://bank-master-data-default-rtdb.asia-southeast1.firebasedatabase.app"
-FIREBASE_PROJECT_ID = "bank-master-data"
-FIREBASE_STORAGE_BUCKET = "bank-master-data.firebasestorage.app"
-FIREBASE_MESSAGING_SENDER_ID = "778113641069"
-FIREBASE_APP_ID = "1:778113641069:web:f2d584555dee89b8ca2d64"
-FIREBASE_MEASUREMENT_ID = "G-JF1DCDTFJ2"
-
-[workflows]
-runButton = "Project"
-
-[[workflows.workflow]]
-name = "Project"
-mode = "parallel"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Start application"
-
-[[workflows.workflow]]
-name = "Start application"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npm start"
-waitForPort = 5000
-
-[workflows.workflow.metadata]
-outputType = "webview"
+[[ports]]
+localPort = 3001
+externalPort = 3001
 
 [[ports]]
 localPort = 5000
 externalPort = 80
 
-[[ports]]
-localPort = 33863
-externalPort = 3000
+[userenv]
 
-[deployment]
-deploymentTarget = "autoscale"
-run = ["node", "server.js"]
+[userenv.shared]
+FIREBASE_API_KEY = "AIzaSyBVCDW0Q8YaTPz_MO9FTve1FaPu42jtO2c"
+FIREBASE_AUTH_DOMAIN = "bank-master-data.firebaseapp.com"
+FIREBASE_DATABASE_URL = "https://bank-master-data-default-rtdb.asia-southeast1.firebasedatabase.app"
+FIREBASE_PROJECT_ID = "bank-master-data"
+FIREBASE_STORAGE_BUCKET = "bank-master-data.firebasestorage.app"
+FIREBASE_MESSAGING_SENDER = "778113641069"
+FIREBASE_APP_ID = "1:778113641069:web:f2d584555dee89b8ca2d64"
+FIREBASE_MEASUREMENT_ID = "G-JF1DCDTFJ2"

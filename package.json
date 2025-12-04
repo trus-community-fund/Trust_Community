@@ -1,15 +1,19 @@
 {
-  "name": "trust-community-fund",
-  "version": "1.0.0",
-  "description": "Trust Community Fund Management Application",
-  "main": "server.js",
-  "type": "module",
+  "name": "trust-community-app",
+  "version": "0.1.0",
+  "private": true,
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
   },
   "dependencies": {
-    "express": "^4.18.2",
-    "dotenv": "^16.3.1"
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "firebase": "latest",
+    "lucide-react": "latest",
+    "feather-icons": "latest"
   }
 }
