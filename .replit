@@ -15,3 +15,35 @@ FIREBASE_STORAGE_BUCKET = "bank-master-data.firebasestorage.app"
 FIREBASE_MESSAGING_SENDER_ID = "778113641069"
 FIREBASE_APP_ID = "1:778113641069:web:f2d584555dee89b8ca2d64"
 FIREBASE_MEASUREMENT_ID = "G-JF1DCDTFJ2"
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Start application"
+
+[[workflows.workflow]]
+name = "Start application"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm start"
+waitForPort = 5000
+
+[workflows.workflow.metadata]
+outputType = "webview"
+
+[[ports]]
+localPort = 5000
+externalPort = 80
+
+[[ports]]
+localPort = 33863
+externalPort = 3000
