@@ -42,7 +42,7 @@ export default function LoginPage() {
     <div className="flex items-center justify-center min-h-screen bg-[#f0f2f5]">
       <div className="bg-white p-10 rounded-xl shadow-lg text-center w-full max-w-sm">
         <h1 className="text-[#002366] text-2xl font-bold mb-2">Members Login</h1>
-        <p className="text-gray-600 mb-8">बैंक कम्युनिटी में आपका स्वागत है।</p>
+        <p className="text-gray-600 mb-6 text-sm">कृपया अपने क्रेडेंशियल्स दर्ज करें।</p>
 
         <form onSubmit={handleLogin} className="text-left">
           <div className="mb-5">
@@ -77,11 +77,16 @@ export default function LoginPage() {
         </form>
 
         {error && (
-          <div className="mt-5 p-3 bg-red-100 border border-red-200 text-red-700 rounded-lg text-sm">
+          <div className="mt-5 p-3 bg-red-100 text-red-700 text-sm rounded-lg border border-red-200">
             {error}
           </div>
         )}
+
+        <div className="mt-8 text-xs text-gray-400">
+          Trust Community Fund &copy; 2025
+        </div>
       </div>
     </div>
   );
 }
+
