@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications - Bank Community Loan</title>
+    <!-- Feather Icons -->
+    <script src="https://unpkg.com/feather-icons"></script>
+    
+    <!-- Firebase Libraries (v8) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #007bff; --primary-darker: #0056b3;
+            --bg-color: #f0f2f5; --card-bg: #ffffff;
+            --border-color: #dee2e6; --shadow-color: rgba(0, 0, 0, 0.08);
+            --text-color: #333; --light-text: #555;
+            --danger-color: #dc3545; --success-color: #28a745;
+        }
+        body {
+            font-family: 'Roboto', 'Arial', sans-serif;
+            margin: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-darker));
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header h1 {
+            font-size: 1.3em;
+            margin: 0;
+            flex-grow: 1;
+        }
+        .back-btn {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            margin-right: 15px;
+        }
+        .notifications-container {
+            padding: 15px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .notification-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px var(--shadow-color);
+            margin-bottom: 15px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+        .notification-content {
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+        .notification-header {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: var(--primary-darker);
+            margin: 0 0 10px 0;
+        }
+        .manual-image {
+            width: 100%;
+            height: auto;
+            max-height: 200px;
+            object-fit: cover;
+            display: block;
+        }
+        .notification-body {
+            font-size: 0.95em;
+            line-height: 1.6;
+            color: var(--light-text);
+            margin: 0;
+        }
+        .notification-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+        }
+        .notification-time {
+            font-size: 0.85em;
+            color: var(--light-text);
+        }
+        .explore-btn, .pay-now-btn {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .explore-btn:hover, .pay-now-btn:hover {
+            background-color: var(--primary-darker);
+        }
+        .personal-reminder, .transaction-item {
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .personal-reminder img, .transaction-item img {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+        .personal-reminder .reminder-text, .transaction-item .transaction-text {
+            flex-grow: 1;
+        }
+        .loading-text, .no-notifications {
+            text-align: center;
+            padding: 50px 20px;
+            color: var(--light-text);
+            font-size: 1.1em;
+        }
+
+        /* === YAHAN INSTALL BUTTON KE LIYE NAYA DESIGN JODA GAYA HAI === */
+        #install-container {
+            display: none; /* Default hidden */
+            margin-bottom: 15px;
+            animation: fadeInDown 0.5s ease-out;
+        }
+        #install-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            background-image: linear-gradient(45deg, #28a745 0%, #218838 100%);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-size: 1.1em;
+            font-weight: 700;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+        #install-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+        }
+        #install-btn i {
+            width: 24px;
+            height: 24px;
+            margin-right: 12px;
+            stroke-width: 2.5;
+        }
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        /* === CSS BADLAV SAMAPT === */
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <button class="back-btn" onclick="history.back()">
+            <i data-feather="arrow-left"></i>
+        </button>
+        <h1>Notifications</h1>
+    </header>
+
+    <main id="notificationsContainer" class="notifications-container">
+        <!-- === YAHAN INSTALL BUTTON KE HTML KO UPDATE KIYA GAYA HAI === -->
+        <div id="install-container">
+            <button id="install-btn">
+                <i data-feather="download-cloud"></i>
+                <span>BANK Install App</span>
+            </button>
+        </div>
+        <!-- === HTML BADLAV SAMAPT === -->
+        <p class="loading-text">Loading notifications...</p>
+    </main>
+
+    <script>
+        const DEFAULT_IMAGE = 'https://i.ibb.co/HTNrbJxD/20250716-222246.png';
+
+        async function initializeApp() {
+            try {
+                const response = await fetch('/api/firebase-config');
+                if (!response.ok) throw new Error('Failed to load Firebase configuration.');
+                const config = await response.json();
+                
+                firebase.initializeApp(config);
+                
+                firebase.auth().onAuthStateChanged(user => {
+                    if (user) {
+                        fetchAndRenderNotifications();
+                    } else {
+                        window.location.href = '/login.html';
+                    }
+                });
+
+            } catch (error) {
+                const container = document.getElementById('notificationsContainer');
+                container.innerHTML = `<p class="no-notifications">Error: ${error.message}</p>`;
+            }
+        }
+
+        // === YAHAN FINAL BADLAV KIYA GAYA HAI: PWA Install Logic ko update kiya gaya hai ===
+        function setupPWAInstall() {
+            const installContainer = document.getElementById('install-container');
+            const installBtn = document.getElementById('install-btn');
+
+            const showInstallButton = () => {
+                const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+                // Button tabhi dikhao jab app standalone me NAHI chal raha ho AUR install prompt available ho
+                if (!isStandalone && window.deferredInstallPrompt && installContainer) {
+                    installContainer.style.display = 'block';
+                }
+            };
+            
+            // 1. Page load hote hi check karein
+            showInstallButton();
+
+            // 2. Agar `beforeinstallprompt` event baad me aata hai, to dobara check karein
+            window.addEventListener('pwa-install-ready', showInstallButton);
+
+            if (installBtn) {
+                installBtn.addEventListener('click', async () => {
+                    const promptEvent = window.deferredInstallPrompt;
+                    if (!promptEvent) {
+                        // Yeh fallback alert hai, agar kisi wajah se button dikh jaye lekin prompt na ho
+                        alert("Cannot install right now. Please try again from the main page.");
+                        return;
+                    }
+                    promptEvent.prompt();
+                    await promptEvent.userChoice;
+                    window.deferredInstallPrompt = null;
+                    if (installContainer) {
+                        installContainer.style.display = 'none';
+                    }
+                });
+            }
+        }
+        // === BADLAV SAMAPT ===
+
+        function getTodayDateStringLocal() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = (today.getMonth() + 1).toString().padStart(2, '0');
+            const day = today.getDate().toString().padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        async function fetchAndRenderNotifications() {
+            const database = firebase.database();
+            const container = document.getElementById('notificationsContainer');
+            
+            try {
+                const snapshot = await database.ref().once('value');
+                const data = snapshot.val();
+                if (!data) {
+                    container.innerHTML = `<p class="no-notifications">No data found.</p>`;
+                    return;
+                }
+
+                const allMembersRaw = data.members || {};
+                const allManualNotifications = data.admin?.notifications?.manual || {};
+                const allAutomatedQueue = data.admin?.notifications?.automatedQueue || {};
+                const allTransactions = data.transactions || {};
+
+                const verifiedMemberId = localStorage.getItem('verifiedMemberId');
+                if (!verifiedMemberId) {
+                    const loadingText = container.querySelector('.loading-text');
+                    if(loadingText) loadingText.remove();
+                    container.insertAdjacentHTML('beforeend', `<p class="no-notifications">Please verify your device on the main page to see notifications.</p>`);
+                    return;
+                }
+                const currentUser = allMembersRaw[verifiedMemberId];
+                if (!currentUser) {
+                     const loadingText = container.querySelector('.loading-text');
+                     if(loadingText) loadingText.remove();
+                     container.insertAdjacentHTML('beforeend', `<p class="no-notifications">Could not find your profile. Please re-verify your device.</p>`);
+                     return;
+                }
+                currentUser.id = verifiedMemberId;
+
+                renderNotifications(container, currentUser, allManualNotifications, allAutomatedQueue, allMembersRaw, allTransactions);
+
+            } catch (error) {
+                console.error("Failed to fetch data:", error);
+                 const loadingText = container.querySelector('.loading-text');
+                 if(loadingText) loadingText.remove();
+                 container.insertAdjacentHTML('beforeend', `<p class="no-notifications">Could not load notifications. Please try again later.</p>`);
+            }
+        }
+
+        function renderNotifications(container, currentUser, manualNotifs, automatedQueue, allMembers, allTransactions) {
+            
+            const manualNotificationsList = Object.values(manualNotifs)
+                .map(item => ({ ...item, category: 'manual', date: item.createdAt }));
+
+            let userReminders = Object.values(automatedQueue)
+                .filter(item => item.memberId === currentUser.id && item.status === 'active');
+            
+            const now = new Date();
+            const memberTransactions = Object.values(allTransactions).filter(tx => tx.memberId === currentUser.id);
+            const currentMonthSipPaid = memberTransactions.some(tx => 
+                tx.type === 'SIP' &&
+                new Date(tx.date).getMonth() === now.getMonth() &&
+                new Date(tx.date).getFullYear() === now.getFullYear()
+            );
+
+            if (currentMonthSipPaid) {
+                userReminders = userReminders.filter(item => !item.type.includes('SIP Payment Reminder'));
+            }
+            
+            const personalRemindersList = userReminders.map(item => ({ ...item, category: 'reminder', date: Date.now() }));
+            
+            const todayDateString = getTodayDateStringLocal();
+            const todaysTransactionsList = Object.values(allTransactions).filter(tx => {
+                const txDate = new Date(tx.date);
+                const txDateString = `${txDate.getFullYear()}-${(txDate.getMonth() + 1).toString().padStart(2, '0')}-${txDate.getDate().toString().padStart(2, '0')}`;
+                return txDateString === todayDateString;
+            }).map(tx => ({ ...tx, category: 'transaction', date: tx.timestamp || tx.date }));
+
+            const allNotifications = [...manualNotificationsList, ...todaysTransactionsList, ...personalRemindersList];
+            
+            allNotifications.sort((a, b) => {
+                if (a.category === 'manual' && b.category !== 'manual') return -1;
+                if (a.category !== 'manual' && b.category === 'manual') return 1;
+                return new Date(b.date) - new Date(a.date);
+            });
+
+            const loadingText = container.querySelector('.loading-text');
+            if(loadingText) loadingText.remove();
+            
+            if (allNotifications.length === 0) {
+                 if (container.children.length === 1 && container.querySelector('#install-container')) {
+                 } else if (container.children.length === 0) {
+                    container.innerHTML += `<p class="no-notifications">No new notifications for you.</p>`;
+                 }
+                return;
+            }
+
+            allNotifications.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'notification-card';
+
+                if (item.category === 'manual') {
+                    card.innerHTML = `
+                        ${item.imageUrl ? `<img src="${item.imageUrl}" class="manual-image" alt="${item.title}" onerror="this.style.display='none'">` : ''}
+                        <div class="notification-content">
+                            <h3 class="notification-header">${item.title}</h3>
+                            ${item.body ? `<p class="notification-body">${item.body}</p>` : ''}
+                            <div class="notification-footer">
+                                <span class="notification-time">${new Date(item.date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
+                                ${item.link ? `<a href="${item.link}" target="_blank" class="explore-btn">Explore</a>` : ''}
+                            </div>
+                        </div>
+                    `;
+                } else if (item.category === 'reminder') {
+                    let bodyHTML = '';
+                    if (item.type.includes('SIP Payment Reminder')) {
+                        const today = new Date();
+                        let daysLeftText = '';
+                        const dueDate = 10;
+                        if (today.getDate() <= dueDate) {
+                            const daysLeft = dueDate - today.getDate();
+                            if (daysLeft > 1) daysLeftText = `<strong style="color: var(--primary-color);">(Only ${daysLeft} days left)</strong>`;
+                            else if (daysLeft === 1) daysLeftText = `<strong style="color: var(--danger-color);">(Only 1 day left!)</strong>`;
+                            else daysLeftText = `<strong style="color: var(--danger-color);">(Today is the last day!)</strong>`;
+                        } else {
+                            daysLeftText = `<strong style="color: var(--danger-color);">(Due date has passed)</strong>`;
+                        }
+                        
+                        const sipAmountHTML = `<strong style="color: var(--danger-color);">₹${currentUser.sipAmount || 500}</strong>`;
+                        const reminderMessage = `<strong>Hi ${currentUser.fullName}</strong>, this is a monthly SIP reminder for your ${sipAmountHTML} SIP. ${daysLeftText}`;
+                        
+                        bodyHTML = `
+                            <p class="notification-body">${reminderMessage}</p>
+                            <div class="notification-footer">
+                                <span></span>
+                                <a href="qr.html" class="pay-now-btn">Pay Now</a>
+                            </div>
+                        `;
+                    } else {
+                        bodyHTML = `<p class="notification-body"><strong>Hi ${currentUser.fullName}</strong>, ${item.type}</p>`;
+                    }
+
+                    card.innerHTML = `
+                        <div class="personal-reminder">
+                            <img src="${currentUser.profilePicUrl || DEFAULT_IMAGE}" alt="${currentUser.fullName}" onerror="this.onerror=null; this.src='${DEFAULT_IMAGE}';">
+                            <div class="reminder-text">
+                                ${bodyHTML}
+                            </div>
+                        </div>
+                    `;
+                } else if (item.category === 'transaction') {
+                    const member = allMembers[item.memberId];
+                    if (!member) return;
+
+                    let text = '', amount = '', typeClass = '';
+                    switch(item.type) {
+                        case 'SIP': text = `paid their SIP.`; amount = `+ ₹${(item.amount || 0).toLocaleString()}`; typeClass = 'sip'; break;
+                        case 'Loan Taken': text = `received a loan.`; amount = `- ₹${(item.amount || 0).toLocaleString()}`; typeClass = 'loan'; break;
+                        case 'Loan Payment': text = `made a loan payment.`; amount = `+ ₹${(item.principalPaid || 0).toLocaleString()}`; typeClass = 'payment'; break;
+                        case 'Extra Payment': text = `made an extra payment.`; amount = `+ ₹${(item.amount || 0).toLocaleString()}`; typeClass = 'sip'; break;
+                        case 'Extra Withdraw': text = `withdrew money.`; amount = `- ₹${(item.amount || 0).toLocaleString()}`; typeClass = 'loan'; break;
+                        default: text = 'made a transaction.'; break;
+                    }
+
+                    card.innerHTML = `
+                        <div class="transaction-item">
+                            <img src="${member.profilePicUrl || DEFAULT_IMAGE}" alt="${member.fullName}" onerror="this.onerror=null; this.src='${DEFAULT_IMAGE}';">
+                            <div class="transaction-text">
+                                <p class="notification-body">
+                                    <strong>${member.fullName}</strong> ${text}
+                                    <strong style="color: ${item.type.includes('Loan Taken') || item.type.includes('Extra Withdraw') ? 'var(--danger-color)' : 'var(--success-color)'}; float: right;">${amount}</strong>
+                                </p>
+                                <span class="notification-time">${new Date(item.date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                container.appendChild(card);
+            });
+            
+            feather.replace();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeApp();
+            setupPWAInstall(); 
+            feather.replace();
+        });
+    </script>
+</body>
+</html>
+
+
